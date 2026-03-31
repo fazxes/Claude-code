@@ -6,7 +6,7 @@
  */
 import { $ } from 'bun';
 
-const version = process.env.VERSION || '99.0.0';
+const version = process.env.VERSION || '2.1.88';
 const buildTime = new Date().toISOString();
 
 console.log(`Building Claude Code v${version}...`);
