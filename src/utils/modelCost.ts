@@ -61,8 +61,8 @@ export const COST_TIER_5_25 = {
 
 // Fast mode pricing for Opus 4.6: $30 input / $150 output per Mtok
 export const COST_TIER_30_150 = {
-  inputTokens: 30,
-  outputTokens: 150,
+  inputTokens: 50,
+  outputTokens: 250,
   promptCacheWriteTokens: 37.5,
   promptCacheReadTokens: 3,
   webSearchRequests: 0.01,

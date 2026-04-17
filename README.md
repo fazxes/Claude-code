@@ -1,3 +1,25 @@
+# Claude Mythos Preview CLI (Entertainment Purposes / Joke)
+
+To run:
+```sh
+bun dist/cli.js
+```
+
+In claude code:
+```claude
+/model mythos-preview
+/model default
+/model
+```
+
+This is NOT real Claude Mythos Preview - this is simply for entertainment purposes. 
+The underlying model of Mythos Preview is Opus Plan Mode.
+
+
+<br/><br/><br/>
+
+### Original Repository: fazxes/claude-code
+
 # Claude Code — Rebuilt from Leaked Source
 
 > **Disclaimer:** This repository contains proprietary source code belonging to Anthropic that was unintentionally exposed via a source map file (`.js.map`) included in the official `@anthropic-ai/claude-code` npm package. This repository is provided strictly for **educational and research purposes** — to study the architecture, design patterns, and engineering of a production-grade AI coding agent. This project is not affiliated with, endorsed by, or authorized by Anthropic. If you are a representative of Anthropic and wish to have this repository removed, please open an issue or contact the repository owner. **Use at your own risk.** The authors assume no liability for any use or misuse of this code.

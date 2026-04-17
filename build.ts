@@ -13,9 +13,14 @@
  */
 
 import type { BunPlugin } from 'bun';
+import { resolve } from 'path';
 
 const version = process.env.VERSION || '2.1.88';
 const buildTime = new Date().toISOString();
+const packageJson = (await Bun.file('package.json').json()) as {
+  dependencies?: Record<string, string>;
+};
+const dependencyExternals = Object.keys(packageJson.dependencies ?? {});
 
 // ── Feature Flags ─────────────────────────────────────────────────────────
 //
@@ -28,20 +33,20 @@ const buildTime = new Date().toISOString();
 //
 const FEATURE_FLAGS: Record<string, boolean> = {
   // ── TESTED & WORKING ──────────────────────────────────────────────
-  VOICE_MODE: true,                  // hold-to-talk dictation
+  VOICE_MODE: false,                 // hold-to-talk dictation
 
   // ── TESTING NOW (source exists, loaded without crash) ─────────────
-  COORDINATOR_MODE: true,            // multi-agent coordination
-  TOKEN_BUDGET: true,                // token budget controls
-  TEAMMEM: true,                     // team memory sync
-  AGENT_TRIGGERS: true,              // scheduled agent tasks
-  MESSAGE_ACTIONS: true,             // action buttons on messages
-  HOOK_PROMPTS: true,                // hook prompt injection
-  AWAY_SUMMARY: true,                // summary after being away
-  BG_SESSIONS: true,                 // background sessions
-  BUDDY: true,                       // companion mode
-  DUMP_SYSTEM_PROMPT: true,          // --dump-system-prompt flag
-  COWORKER_TYPE_TELEMETRY: true,     // telemetry metadata
+  COORDINATOR_MODE: false,           // multi-agent coordination
+  TOKEN_BUDGET: false,               // token budget controls
+  TEAMMEM: false,                    // team memory sync
+  AGENT_TRIGGERS: false,             // scheduled agent tasks
+  MESSAGE_ACTIONS: false,            // action buttons on messages
+  HOOK_PROMPTS: false,               // hook prompt injection
+  AWAY_SUMMARY: false,               // summary after being away
+  BG_SESSIONS: false,                // background sessions
+  BUDDY: false,                      // companion mode
+  DUMP_SYSTEM_PROMPT: false,         // --dump-system-prompt flag
+  COWORKER_TYPE_TELEMETRY: false,    // telemetry metadata
 
   // ── INFRA (needs Anthropic cloud) ─────────────────────────────────
   ULTRAPLAN: false,                  // INFRA: spawns remote CCR session on claude.ai
@@ -83,6 +88,23 @@ const bunBundlePlugin: BunPlugin = {
       `,
       loader: 'js',
     }));
+
+    // Route unavailable private/native modules to local stubs so external builds
+    // remain bundleable and runnable without Anthropic-internal binaries.
+    const moduleAliases: Record<string, string> = {
+      '@ant/claude-for-chrome-mcp': 'stubs/@ant/claude-for-chrome-mcp/src/index.ts',
+      'color-diff-napi': 'stubs/color-diff-napi/index.ts',
+      'audio-capture-napi': 'shims/audio-capture-napi.ts',
+      'modifiers-napi': 'shims/modifiers-napi.ts',
+    };
+
+    build.onResolve({ filter: /.*/ }, args => {
+      const target = moduleAliases[args.path];
+      if (!target) {
+        return;
+      }
+      return { path: resolve(process.cwd(), target) };
+    });
   },
 };
 
@@ -112,7 +134,12 @@ const result = await Bun.build({
       'report the issue at https://github.com/anthropics/claude-code/issues',
     ),
   },
-  external: ['react-devtools-core', 'sharp'],
+  external: [
+    ...dependencyExternals,
+    // Optional dependencies kept external even when absent.
+    'react-devtools-core',
+    'sharp',
+  ],
 });
 
 if (!result.success) {

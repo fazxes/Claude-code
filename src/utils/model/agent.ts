@@ -82,7 +82,7 @@ export function getAgentModel(
     // This ensures agents using 'inherit' get opusplan→Opus resolution in plan mode
     return getRuntimeMainLoopModel({
       permissionMode: permissionMode ?? 'default',
-      mainLoopModel: parentModel,
+      mainLoopModel: "mythos-preview",
       exceeds200kTokens: false,
     })
   }

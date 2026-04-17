@@ -1,5 +1,5 @@
 import { GrowthBook } from '@growthbook/growthbook'
-import { isEqual, memoize } from 'lodash-es'
+import { isDeepStrictEqual } from 'util'
 import {
   getIsNonInteractiveSession,
   getSessionTrustAccepted,
@@ -105,6 +105,18 @@ let reinitializingPromise: Promise<unknown> | null = null
 // init.ts) and must survive auth-change resets.
 type GrowthBookRefreshListener = () => void | Promise<void>
 const refreshed = createSignal()
+
+function memoizeNoArgs<T>(fn: () => T): () => T {
+  let hasValue = false
+  let cachedValue: T
+  return () => {
+    if (!hasValue) {
+      cachedValue = fn()
+      hasValue = true
+    }
+    return cachedValue
+  }
+}
 
 /** Call a listener with sync-throw and async-rejection both routed to logError. */
 function callSafe(listener: GrowthBookRefreshListener): void {
@@ -259,7 +271,7 @@ export function setGrowthBookConfigOverride(
         }
         return { ...c, growthBookOverrides: rest }
       }
-      if (isEqual(current[feature], value)) return c
+      if (isDeepStrictEqual(current[feature], value)) return c
       return { ...c, growthBookOverrides: { ...current, [feature]: value } }
     })
     // Subscribers do their own change detection (see onGrowthBookRefresh docs),
@@ -407,7 +419,7 @@ async function processRemoteEvalPayload(
 function syncRemoteEvalToDisk(): void {
   const fresh = Object.fromEntries(remoteEvalFeatureValues)
   const config = getGlobalConfig()
-  if (isEqual(config.cachedGrowthBookFeatures, fresh)) {
+  if (isDeepStrictEqual(config.cachedGrowthBookFeatures, fresh)) {
     return
   }
   saveGlobalConfig(current => ({
@@ -487,7 +499,7 @@ function getUserAttributes(): GrowthBookUserAttributes {
 /**
  * Get or create the GrowthBook client instance
  */
-const getGrowthBookClient = memoize(
+const getGrowthBookClient = memoizeNoArgs(
   (): { client: GrowthBook; initialized: Promise<void> } | null => {
     if (!isGrowthBookEnabled()) {
       return null
@@ -619,7 +631,7 @@ const getGrowthBookClient = memoize(
 /**
  * Initialize GrowthBook client (blocks until ready)
  */
-export const initializeGrowthBook = memoize(
+export const initializeGrowthBook = memoizeNoArgs(
   async (): Promise<GrowthBook | null> => {
     let clientWrapper = getGrowthBookClient()
     if (!clientWrapper) {

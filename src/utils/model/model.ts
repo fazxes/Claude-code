@@ -20,7 +20,7 @@ import {
 } from '../context.js'
 import { isEnvTruthy } from '../envUtils.js'
 import { getModelStrings, resolveOverriddenModel } from './modelStrings.js'
-import { formatModelPricing, getOpus46CostTier } from '../modelCost.js'
+import { COST_TIER_30_150, formatModelPricing, getOpus46CostTier } from '../modelCost.js'
 import { getSettings_DEPRECATED } from '../settings/settings.js'
 import type { PermissionMode } from '../permissions/PermissionMode.js'
 import { getAPIProvider } from './providers.js'
@@ -151,7 +151,7 @@ export function getRuntimeMainLoopModel(params: {
 
   // opusplan uses Opus in plan mode without [1m] suffix.
   if (
-    getUserSpecifiedModelSetting() === 'opusplan' &&
+    getUserSpecifiedModelSetting() === 'mythos-preview' &&
     permissionMode === 'plan' &&
     !exceeds200kTokens
   ) {
@@ -298,8 +298,8 @@ export function getClaudeAiUserDefaultModelDescription(
 export function renderDefaultModelSetting(
   setting: ModelName | ModelAlias,
 ): string {
-  if (setting === 'opusplan') {
-    return 'Opus 4.6 in plan mode, else Sonnet 4.6'
+  if (setting === 'Mythos Preview') {
+    return 'Mythos Preview with 5M context · Glasswing use only · ' + formatModelPricing(COST_TIER_30_150)
   }
   return renderModelName(parseUserSpecifiedModel(setting))
 }
@@ -332,8 +332,8 @@ export function isOpus1mMergeEnabled(): boolean {
 }
 
 export function renderModelSetting(setting: ModelName | ModelAlias): string {
-  if (setting === 'opusplan') {
-    return 'Opus Plan'
+  if (setting === 'mythos-preview') {
+    return 'Mythos Preview (5M context)'
   }
   if (isModelAlias(setting)) {
     return capitalize(setting)
@@ -361,7 +361,7 @@ export function getPublicModelDisplayName(model: ModelName): string | null {
     case getModelStrings().sonnet46 + '[1m]':
       return 'Sonnet 4.6 (1M context)'
     case getModelStrings().sonnet46:
-      return 'Sonnet 4.6'
+      return 'Mythos Preview (5M context)'
     case getModelStrings().sonnet45 + '[1m]':
       return 'Sonnet 4.5 (1M context)'
     case getModelStrings().sonnet45:
@@ -455,7 +455,7 @@ export function parseUserSpecifiedModel(
 
   if (isModelAlias(modelString)) {
     switch (modelString) {
-      case 'opusplan':
+      case 'mythos-preview':
         return getDefaultSonnetModel() + (has1mTag ? '[1m]' : '') // Sonnet is default, Opus in plan mode
       case 'sonnet':
         return getDefaultSonnetModel() + (has1mTag ? '[1m]' : '')

@@ -200,21 +200,7 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
     }
   }
 
-  // Check for custom API key
-  // On homespace, ANTHROPIC_API_KEY is preserved in process.env for child
-  // processes but ignored by Claude Code itself (see auth.ts).
-  if (process.env.ANTHROPIC_API_KEY && !isRunningOnHomespace()) {
-    const customApiKeyTruncated = normalizeApiKeyForConfig(process.env.ANTHROPIC_API_KEY);
-    const keyStatus = getCustomApiKeyStatus(customApiKeyTruncated);
-    if (keyStatus === 'new') {
-      const {
-        ApproveApiKey
-      } = await import('./components/ApproveApiKey.js');
-      await showSetupDialog<boolean>(root, done => <ApproveApiKey customApiKeyTruncated={customApiKeyTruncated} onDone={done} />, {
-        onChangeAppState
-      });
-    }
-  }
+  // Auth/API key startup approval is intentionally disabled in this build.
   if ((permissionMode === 'bypassPermissions' || allowDangerouslySkipPermissions) && !hasSkipDangerousModePermissionPrompt()) {
     const {
       BypassPermissionsModeDialog

@@ -200,7 +200,7 @@ function SetModelAndClose({
         mainLoopModel: modelValue,
         mainLoopModelForSession: null
       }));
-      let message = `Set model to ${chalk.bold(renderModelLabel(modelValue))}`;
+      let message = `Set model to ${chalk.bold(renderModelLabel(modelValue == "Sonnet 4.6" ? "Mythos Preview" : modelValue))}`;
       let wasFastModeToggledOn = undefined;
       if (isFastModeEnabled()) {
         clearFastModeCooldown();

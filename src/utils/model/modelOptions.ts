@@ -11,6 +11,7 @@ import {
   COST_HAIKU_35,
   COST_HAIKU_45,
   formatModelPricing,
+  COST_TIER_30_150,
 } from '../modelCost.js'
 import { getSettings_DEPRECATED } from '../settings/settings.js'
 import { checkOpus1mAccess, checkSonnet1mAccess } from './check1mAccess.js'
@@ -69,7 +70,7 @@ export function getDefaultOptionForUser(fastMode = false): ModelOption {
   return {
     value: null,
     label: 'Default (recommended)',
-    description: `Use the default model (currently ${renderDefaultModelSetting(getDefaultMainLoopModelSetting())})${is3P ? '' : ` · ${formatModelPricing(COST_TIER_3_15)}`}`,
+    description: `Use the default model (currently ${renderDefaultModelSetting(getDefaultMainLoopModelSetting())})${is3P ? '' : ` · ${formatModelPricing(COST_TIER_30_150)}`}`,
   }
 }
 
@@ -260,9 +261,9 @@ const MaxHaiku45Option: ModelOption = {
 
 function getOpusPlanOption(): ModelOption {
   return {
-    value: 'opusplan',
-    label: 'Opus Plan Mode',
-    description: 'Use Opus 4.6 in plan mode, Sonnet 4.6 otherwise',
+    value: 'mythos-preview',
+    label: 'Mythos Preview (5M context)',
+    description: 'Mythos Preview with 5M context · Glasswing use only · ' + formatModelPricing(COST_TIER_30_150),
   }
 }
 
@@ -297,7 +298,7 @@ function getModelOptionsBase(fastMode = false): ModelOption[] {
 
       premiumOptions.push(MaxSonnet46Option)
       if (checkSonnet1mAccess()) {
-        premiumOptions.push(getMaxSonnet46_1MOption())
+        premimOptions.push(getMaxSonnet46_1MOption())
       }
 
       premiumOptions.push(MaxHaiku45Option)
@@ -495,7 +496,7 @@ export function getModelOptions(fastMode = false): ModelOption[] {
   }
   if (customModel === null || options.some(opt => opt.value === customModel)) {
     return filterModelOptionsByAllowlist(options)
-  } else if (customModel === 'opusplan') {
+  } else if (customModel === 'mythos-preview') {
     return filterModelOptionsByAllowlist([...options, getOpusPlanOption()])
   } else if (customModel === 'opus' && getAPIProvider() === 'firstParty') {
     return filterModelOptionsByAllowlist([
